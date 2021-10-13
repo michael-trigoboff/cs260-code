@@ -20,13 +20,9 @@ public:
 	friend std::ostream& operator<<(std::ostream& out, const List& list);
 
 private:
-	void	expandIfNeeded(void);
-	bool	findIndex(char ch, int& index) const;
+	friend class PrivateData;
 
-	char*	listArray;
-	int		arraySize;
-	int		nItems;
+	void* privateData;
 };
-
 
 #endif

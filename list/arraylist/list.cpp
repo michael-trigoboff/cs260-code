@@ -5,47 +5,74 @@ using namespace std;
 
 static const int	INITIAL_SIZE{4};
 
+struct PrivateData
+{
+	PrivateData(int arraySize, int nItems) :
+		listArray{new char[INITIAL_SIZE]},
+		arraySize{arraySize},
+		nItems{nItems}
+	{
+	}
+
+	~PrivateData()
+	{
+		delete[] listArray;
+	}
+
+	static PrivateData*	getPrivateData(const List& list)
+	{
+		return static_cast<PrivateData*>(list.privateData);
+	}
+
+	char*	listArray;
+	int		arraySize;
+	int		nItems;
+};
+
 List::List(void) :
-	listArray{new char[INITIAL_SIZE]},
-	arraySize{INITIAL_SIZE},
-	nItems{0}
+	privateData{new PrivateData{INITIAL_SIZE, 0}}
 {
 }
 
 List::~List(void)
 {
-	delete[] listArray;
+	delete static_cast<PrivateData*>(privateData);
 }
 
-void List::expandIfNeeded(void)
+static void expandIfNeeded(List& list)
 {
-	int		newArraySize;
-	char*	newArray;
+	PrivateData*	pd{PrivateData::getPrivateData(list)};
+	int				newArraySize;
+	char*			newArray;
 
-	if (nItems >= arraySize) {
-		newArraySize = arraySize + INITIAL_SIZE;
+	if (pd->nItems >= pd->arraySize) {
+		newArraySize = pd->arraySize + INITIAL_SIZE;
 		newArray = new char[newArraySize];
-		for (int i = 0; i < arraySize; i++)
-			newArray[i] = listArray[i];
-		delete[] listArray;
-		listArray = newArray;
-		arraySize = newArraySize;
+		for (int i = 0; i < pd->arraySize; i++)
+			newArray[i] = pd->listArray[i];
+		delete[] pd->listArray;
+		pd->listArray = newArray;
+		pd->arraySize = newArraySize;
 		}
 }
 
 void List::addFirst(char ch)
 {
-	expandIfNeeded();
-	for (int i{nItems}; i > 0; i--)
-		listArray[i] = listArray[i - 1];
-	listArray[0] = ch;
-	nItems++;
+	PrivateData*	pd{PrivateData::getPrivateData(*this)};
+
+	expandIfNeeded(*this);
+	for (int i{pd->nItems}; i > 0; i--)
+		pd->listArray[i] = pd->listArray[i - 1];
+	pd->listArray[0] = ch;
+	pd->nItems++;
 }
 
-bool List::findIndex(char ch, int& index) const
+static bool findIndex(const List& list, char ch, int& index)
 {
-	for (int i{0}; i < nItems; i++)
-		if (listArray[i] == ch) {
+	PrivateData*	pd{PrivateData::getPrivateData(list)};
+
+	for (int i{0}; i < pd->nItems; i++)
+		if (pd->listArray[i] == ch) {
 			index = i;
 			return true;
 			}
@@ -54,14 +81,15 @@ bool List::findIndex(char ch, int& index) const
 
 bool List::addBefore(char before, char ch)
 {
-	int		index;
+	PrivateData*	pd{PrivateData::getPrivateData(*this)};
+	int				index;
 	
-	if (findIndex(before, index)) {
-		expandIfNeeded();
-		for (int i{nItems - 1}; i >= index; i--)
-			listArray[i + 1] = listArray[i];
-		listArray[index] = ch;
-		nItems++;
+	if (findIndex(*this, before, index)) {
+		expandIfNeeded(*this);
+		for (int i{pd->nItems - 1}; i >= index; i--)
+			pd->listArray[i + 1] = pd->listArray[i];
+		pd->listArray[index] = ch;
+		pd->nItems++;
 		return true;
 		}
 	else
@@ -70,25 +98,28 @@ bool List::addBefore(char before, char ch)
 
 void List::addLast(char ch)
 {
-	expandIfNeeded();
-	listArray[nItems++] = ch;
+	PrivateData*	pd{PrivateData::getPrivateData(*this)};
+
+	expandIfNeeded(*this);
+	pd->listArray[pd->nItems++] = ch;
 }
 
 bool List::find(char ch) const
 {
 	int		index;
 
-	return findIndex(ch, index);
+	return findIndex(*this, ch, index);
 }
 
 bool List::remove(char ch)
 {
-	int		index;
+	PrivateData*	pd{PrivateData::getPrivateData(*this)};
+	int				index;
 
-	if (findIndex(ch, index)) {
-		for (int i = index; i < nItems - 1; i++)
-			listArray[i] = listArray[i + 1];
-		nItems--;
+	if (findIndex(*this, ch, index)) {
+		for (int i = index; i < pd->nItems - 1; i++)
+			pd->listArray[i] = pd->listArray[i + 1];
+		pd->nItems--;
 		return true;
 		}
 	else
@@ -97,28 +128,33 @@ bool List::remove(char ch)
 
 int List::length(void) const
 {
-	return nItems;
+	PrivateData*	pd{PrivateData::getPrivateData(*this)};
+
+	return pd->nItems;
 }
 
 char& List::operator[](int index)
 {
-	if (index < 0 || index >= nItems)
+	PrivateData*	pd{PrivateData::getPrivateData(*this)};
+
+	if (index < 0 || index >= pd->nItems)
 		throw "index out of bounds";
 
-	return listArray[index];
+	return pd->listArray[index];
 }
 
 ostream& operator<<(ostream& out, const List& list)
 {
-	bool first{true};
+	PrivateData*	pd{PrivateData::getPrivateData(list)};
+	bool			first{true};
 
 	out << "List: (" << setw(2) << list.length() << " elements) [";
-	for (int i{0}; i < list.nItems; i++) {
+	for (int i{0}; i < pd->nItems; i++) {
 		if (first)
 			first = false;
 		else
 			out << ", ";
-		out << list.listArray[i];
+		out << pd->listArray[i];
 		}
 	out << "]" << endl;
 	return out;
