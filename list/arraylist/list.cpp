@@ -126,6 +126,13 @@ bool List::remove(char ch)
 		return false;
 }
 
+void List::empty()
+{
+	PrivateData*	pd{PrivateData::getPrivateData(*this)};
+	
+	pd->nItems = 0;
+}
+
 int List::length(void) const
 {
 	PrivateData*	pd{PrivateData::getPrivateData(*this)};
