@@ -10,25 +10,20 @@ public:
 	~List(void);
 	void addFirst(char ch);
 	bool addBefore(char before, char ch);
+	void addLast(char ch);
 	bool find(char ch) const;
 	bool remove(char ch);
+	void empty();
 	int	length(void) const;
+
+	char& operator[](int index);
 
 	friend std::ostream& operator<<(std::ostream& out, const List& list);
 
 private:
-	class Node
-	{
-	public:
-		Node(char ch, Node* next) : ch{ch}, next{next} { }
+	friend class PrivateData;
 
-		char	ch;
-		Node*	next;
-	};
-
-	inline bool findPrev(char ch, Node*& prevRet) const;
-
-	Node*	head;
+	void* privateData;
 };
 
 
