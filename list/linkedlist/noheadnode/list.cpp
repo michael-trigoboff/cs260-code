@@ -36,7 +36,7 @@ void List::addFirst(char ch)
 	pd->first = new Node{ch, pd->first};
 }
 
-bool List::findPrev(char ch, void** prevNode) const
+bool List::findPrev(char ch, void*& prevNode) const
 {
 	PrivateData*	pd{static_cast<PrivateData*>(this->privateData)};
 
@@ -45,7 +45,7 @@ bool List::findPrev(char ch, void** prevNode) const
 
 	while (node) {
 		if (node->ch == ch) {
-			*prevNode = prev;
+			prevNode = prev;
 			return true;
 			}
 		prev = node;
@@ -62,7 +62,7 @@ bool List::addBefore(char before, char ch)
 	Node*			node;
 	bool			foundPrev;
 
-	foundPrev = findPrev(before, reinterpret_cast<void**>(&prev));
+	foundPrev = findPrev(before, reinterpret_cast<void*&>(prev));
 	if (foundPrev) {
 		node = new Node(ch, nullptr);
 		if (prev == nullptr) {
@@ -97,7 +97,7 @@ bool List::find(char ch) const
 {
 	void*	unused;
 
-	return findPrev(ch, &unused);
+	return findPrev(ch, unused);
 }
 
 bool List::remove(char ch)
@@ -108,7 +108,7 @@ bool List::remove(char ch)
 	Node*			node;
 	bool			foundPrev;
 
-	foundPrev = findPrev(ch, reinterpret_cast<void**>(&prev));
+	foundPrev = findPrev(ch, reinterpret_cast<void*&>(prev));
 	if (foundPrev) {
 		if (prev == nullptr) {
 			node = pd->first;
