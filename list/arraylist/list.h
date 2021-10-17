@@ -8,6 +8,7 @@ class List
 public:
 	List(void);
 	~List(void);
+	void expandIfNeeded();
 	void addFirst(char ch);
 	bool addBefore(char before, char ch);
 	void addLast(char ch);
@@ -21,7 +22,7 @@ public:
 	friend std::ostream& operator<<(std::ostream& out, const List& list);
 
 private:
-	friend class PrivateData;
+	bool findIndex(const char ch, int& index) const;
 
 	void* privateData;
 };
