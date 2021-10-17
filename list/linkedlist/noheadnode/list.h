@@ -21,7 +21,7 @@ public:
 	friend std::ostream& operator<<(std::ostream& out, const List& list);
 
 private:
-	friend class PrivateData;
+	bool findPrev(char ch, void** prevNode) const;
 
 	void* privateData;
 };

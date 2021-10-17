@@ -3,22 +3,17 @@
 
 using namespace std;
 
+struct Node
+{
+	Node(char ch, Node* next) : ch{ch}, next{next} { }
+
+	char	ch;
+	Node*	next;
+};
+
 struct PrivateData
 {
 	PrivateData() : first{nullptr} {}
-
-	static PrivateData*	getPrivateData(const List& list)
-	{
-		return static_cast<PrivateData*>(list.privateData);
-	}
-
-	struct Node
-	{
-		Node(char ch, Node* next) : ch{ch}, next{next} { }
-
-		char	ch;
-		Node*	next;
-	};
 
 	Node*	first;
 };
@@ -36,21 +31,21 @@ List::~List(void)
 
 void List::addFirst(char ch)
 {
-	PrivateData*	pd{PrivateData::getPrivateData(*this)};
+	PrivateData*	pd{static_cast<PrivateData*>(this->privateData)};
 
-	pd->first = new PrivateData::Node{ch, pd->first};
+	pd->first = new Node{ch, pd->first};
 }
 
-static bool findPrev(const List& list, char ch, PrivateData::Node*& prevRet)
+bool List::findPrev(char ch, void** prevNode) const
 {
-	PrivateData*		pd{PrivateData::getPrivateData(list)};
+	PrivateData*	pd{static_cast<PrivateData*>(this->privateData)};
 
-	PrivateData::Node*	node{pd->first};
-	PrivateData::Node*	prev{nullptr};
+	Node*			node{pd->first};
+	Node*			prev{nullptr};
 
 	while (node) {
 		if (node->ch == ch) {
-			prevRet = prev;
+			*prevNode = prev;
 			return true;
 			}
 		prev = node;
@@ -61,13 +56,15 @@ static bool findPrev(const List& list, char ch, PrivateData::Node*& prevRet)
 
 bool List::addBefore(char before, char ch)
 {
-	PrivateData*		pd{PrivateData::getPrivateData(*this)};
+	PrivateData*	pd{static_cast<PrivateData*>(this->privateData)};
 
-	PrivateData::Node*	prev;
-	PrivateData::Node*	node;
+	Node*			prev;
+	Node*			node;
+	bool			foundPrev;
 
-	if (findPrev(*this, before, prev)) {
-		node = new PrivateData::Node(ch, nullptr);
+	foundPrev = findPrev(before, reinterpret_cast<void**>(&prev));
+	if (foundPrev) {
+		node = new Node(ch, nullptr);
 		if (prev == nullptr) {
 			node->next = pd->first;
 			pd->first = node;
@@ -84,33 +81,35 @@ bool List::addBefore(char before, char ch)
 
 void List::addLast(char ch)
 {
-	PrivateData*		pd{PrivateData::getPrivateData(*this)};
+	PrivateData*	pd{static_cast<PrivateData*>(this->privateData)};
 
-	PrivateData::Node*	node{pd->first};
-	PrivateData::Node*	lastNode{nullptr};
+	Node*			node{pd->first};
+	Node*			lastNode{nullptr};
 
 	while (node) {
 		lastNode = node;
 		node = node->next;
 		}
-	lastNode->next = new PrivateData::Node(ch, nullptr);
+	lastNode->next = new Node(ch, nullptr);
 }
 
 bool List::find(char ch) const
 {
-	PrivateData::Node*	node;
+	void*	unused;
 
-	return findPrev(*this, ch, node);
+	return findPrev(ch, &unused);
 }
 
 bool List::remove(char ch)
 {
-	PrivateData*		pd{PrivateData::getPrivateData(*this)};
+	PrivateData*	pd{static_cast<PrivateData*>(this->privateData)};
 
-	PrivateData::Node*	prev;
-	PrivateData::Node*	node;
+	Node*			prev;
+	Node*			node;
+	bool			foundPrev;
 
-	if (findPrev(*this, ch, prev)) {
+	foundPrev = findPrev(ch, reinterpret_cast<void**>(&prev));
+	if (foundPrev) {
 		if (prev == nullptr) {
 			node = pd->first;
 			pd->first = node->next;
@@ -128,10 +127,10 @@ bool List::remove(char ch)
 
 void List::empty()
 {
-	PrivateData*		pd{PrivateData::getPrivateData(*this)};
+	PrivateData*	pd{static_cast<PrivateData*>(this->privateData)};
 
-	PrivateData::Node*	node{pd->first};
-	PrivateData::Node*	nextNode;
+	Node*			node{pd->first};
+	Node*			nextNode;
 
 	while (node) {
 		nextNode = node->next;
@@ -143,10 +142,10 @@ void List::empty()
 
 int List::length(void) const
 {
-	PrivateData*		pd{PrivateData::getPrivateData(*this)};
+	PrivateData*	pd{static_cast<PrivateData*>(this->privateData)};
 
-	PrivateData::Node*	node{pd->first};
-	int					lgth{0};
+	Node*			node{pd->first};
+	int				lgth{0};
 
 	while (node) {
 		lgth++;
@@ -157,11 +156,11 @@ int List::length(void) const
 
 char& List::operator[](int index)
 {
-	PrivateData*	pd{PrivateData::getPrivateData(*this)};
+	PrivateData*	pd{static_cast<PrivateData*>(this->privateData)};
 
 	static char*	outOfRangeMsg{"index out of range"};
 
-	PrivateData::Node*	node{pd->first};
+	Node*			node{pd->first};
 
 	if (index < 0)
 		throw outOfRangeMsg;
@@ -175,10 +174,10 @@ char& List::operator[](int index)
 
 ostream& operator<<(ostream& out, const List& list)
 {
-	PrivateData*		pd{PrivateData::getPrivateData(list)};
+	PrivateData*	pd{static_cast<PrivateData*>(list.privateData)};
 
-	PrivateData::Node*	node{pd->first};
-	bool				first{true};
+	Node*			node{pd->first};
+	bool			first{true};
 
 	out << "List: (" << setw(2) << list.length() << " elements) [";
 	while (node) {
