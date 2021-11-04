@@ -72,13 +72,13 @@ bool List::find(const char* const key, Node** nodePtr, Node** prevNodePtr) const
 }
 
 // public overload
-bool List::find(const char* const key, int** valuePtr) const
+bool List::find(const char* const key, int* valuePtr) const
 {
 	Node*	node;
 
 	if (find(key, &node)) {
 		if (valuePtr)
-			*valuePtr = &node->value;
+			*valuePtr = node->value;
 		return true;
 		}
 	else

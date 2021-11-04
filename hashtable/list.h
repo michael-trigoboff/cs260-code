@@ -9,7 +9,7 @@ public:
 	List(void);
 	~List(void);
 	int* add(const char* const key, int value);
-	bool find(const char* const key, int** value = nullptr) const;
+	bool find(const char* const key, int* valuePtr = nullptr) const;
 	bool remove(const char* const key);
 	int	length(void) const;
 

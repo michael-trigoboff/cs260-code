@@ -38,11 +38,11 @@ bool HashTable::find(const char* const key, int* valuePtr) const
 {
 	int		index{hashKey(key) % hashArraySize};
 	List&	slotList{hashArray[index]};
-	int*	listNodeValuePtr;
+	int		listNodeValue;
 
-	if (slotList.find(key, &listNodeValuePtr)) {
+	if (slotList.find(key, &listNodeValue)) {
 		if (valuePtr)
-			*valuePtr = *listNodeValuePtr;
+			*valuePtr = listNodeValue;
 		return true;
 		}
 	else
@@ -85,9 +85,9 @@ ostream& operator<<(ostream& out, const HashTable& ht)
 int* HashTable::getValuePtr(const char* const key)
 {
 	int		index{hashKey(key) % hashArraySize};		// calculate index in the array
-	int*	valuePtr;
+	int		value;
 
-	if (! hashArray[index].find(key, &valuePtr)) {
+	if (! hashArray[index].find(key, &value)) {
 		valuePtr = hashArray[index].add(key, NO_VALUE);
 		nPairs++;
 		}
