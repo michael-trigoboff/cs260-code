@@ -37,7 +37,7 @@ List::Node::~Node(void)
 	delete[] key;
 }
 
-int* List::add(const char* const key, int value)
+int* List::add(const char* const key, int* valuePtr)
 {
 	Node*	newNode{new Node(key, value)};
 

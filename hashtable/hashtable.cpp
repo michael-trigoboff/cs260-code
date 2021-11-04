@@ -85,9 +85,9 @@ ostream& operator<<(ostream& out, const HashTable& ht)
 int* HashTable::getValuePtr(const char* const key)
 {
 	int		index{hashKey(key) % hashArraySize};		// calculate index in the array
-	int		value;
+	int*	valuePtr;
 
-	if (! hashArray[index].find(key, &value)) {
+	if (! hashArray[index].find(key, &valuePtr)) {
 		valuePtr = hashArray[index].add(key, NO_VALUE);
 		nPairs++;
 		}
